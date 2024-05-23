@@ -125,3 +125,4 @@ switch:
 # We are using a ESP32 module and a 8 Relay Module
 # if you want to add more zones or use less zones, find a suitable GPIO on the ESP32 
 # and connect it to your relay module. 
+# please refer to: https://randomnerdtutorials.com/esp32-pinout-reference-gpios/
