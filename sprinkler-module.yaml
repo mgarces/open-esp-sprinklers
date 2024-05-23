@@ -1,0 +1,127 @@
+esphome:
+  name: sprinkler-module
+  friendly_name: sprinkler-module
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "<put a key here>"
+
+ota:
+  password: "<insert pasword here>"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Sprinkler-Module"
+    password: "<define password here>"
+
+captive_portal:
+
+web_server:
+  port: 80
+
+# this logic only allows one GPIO to run at a time, and turns on the onboard ESP32 LED everytime one of the zones is running.
+switch:
+  - platform: gpio
+    name: "LED 1"
+    pin: 2
+    inverted: False
+    id: led1
+    restore_mode: RESTORE_DEFAULT_OFF
+    
+  - platform: gpio
+    name: "Zone 1"
+    pin: 25
+    inverted: True
+    id: zone_1
+    restore_mode: RESTORE_DEFAULT_OFF
+    on_turn_on:
+    - switch.turn_off: zone_2
+    - switch.turn_off: zone_3 
+    - switch.turn_off: zone_4
+    - switch.turn_off: zone_5
+    - delay: 1s
+    - switch.turn_on: led1
+    on_turn_off:
+    - switch.turn_off: led1
+    
+
+  - platform: gpio
+    name: "Zone 2"
+    pin: 26
+    inverted: True
+    id: zone_2
+    restore_mode: RESTORE_DEFAULT_OFF
+    on_turn_on:
+    - switch.turn_off: zone_1
+    - switch.turn_off: zone_3 
+    - switch.turn_off: zone_4
+    - switch.turn_off: zone_5
+    - delay: 1s
+    - switch.turn_on: led1
+    on_turn_off:
+    - switch.turn_off: led1
+    
+  - platform: gpio
+    name: "Zone 3"
+    pin: 27
+    inverted: True
+    id: zone_3
+    restore_mode: RESTORE_DEFAULT_OFF
+    on_turn_on:
+    - switch.turn_off: zone_1
+    - switch.turn_off: zone_2 
+    - switch.turn_off: zone_4
+    - switch.turn_off: zone_5
+    - delay: 1s
+    - switch.turn_on: led1
+    on_turn_off:
+    - switch.turn_off: led1
+    
+  - platform: gpio
+    name: "Zone 4"
+    pin: 14
+    inverted: True
+    id: zone_4
+    restore_mode: RESTORE_DEFAULT_OFF
+    on_turn_on:
+    - switch.turn_off: zone_1
+    - switch.turn_off: zone_2 
+    - switch.turn_off: zone_3
+    - switch.turn_off: zone_5
+    - delay: 1s
+    - switch.turn_on: led1
+    on_turn_off:
+    - switch.turn_off: led1
+ 
+  - platform: gpio
+    name: "Zone 5"
+    pin: 13
+    inverted: True
+    id: zone_5
+    restore_mode: RESTORE_DEFAULT_OFF
+    on_turn_on:
+    - switch.turn_off: zone_1
+    - switch.turn_off: zone_2 
+    - switch.turn_off: zone_3
+    - switch.turn_off: zone_4
+    - delay: 1s
+    - switch.turn_on: led1
+    on_turn_off:
+    - switch.turn_off: led1
+
+# We are using a ESP32 module and a 8 Relay Module
+# if you want to add more zones or use less zones, find a suitable GPIO on the ESP32 
+# and connect it to your relay module. 
