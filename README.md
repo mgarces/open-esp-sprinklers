@@ -1,5 +1,6 @@
 # Open ESP Sprinklers
-This small project aims to build an automated watering system, using simple accessible hardware and combining it with [HomeAssistant](https://www.home-assistant.io/)
+This small project aims to build an automated watering system, using simple accessible hardware and combining it with [HomeAssistant](https://www.home-assistant.io/).
+
 We also take advantage of the amazing [ESPHome](https://esphome.io/) project and it's clean integration with HomeAssistant.
 
 # Hardware
