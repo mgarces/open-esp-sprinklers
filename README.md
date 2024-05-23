@@ -13,7 +13,7 @@ and also 3 different Wi-Fi devices in your network to manage. With this solution
 
 # Hardware diagram
 to do
-
+[ESP32 GPIO reference pinout](https://randomnerdtutorials.com/esp32-pinout-reference-gpios/)
 # Valves Diagram 
 to do
 
