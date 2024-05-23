@@ -16,8 +16,8 @@ to do
 
 Safe GPIO to use:
 `33`, `32` `27`, `26`, `25`, `23`, `22`, `21`, `19`, `17`, `16`, `13` and `4`
-Refer to:
 
+Refer to:
 [ESP32 GPIO reference pinout](https://randomnerdtutorials.com/esp32-pinout-reference-gpios/)
 # Valves Diagram 
 to do
