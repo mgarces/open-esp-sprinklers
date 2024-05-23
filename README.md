@@ -24,4 +24,4 @@ esptool.py --chip esp32 -p /dev/tty.usbserial-0001 write_flash 0x0 sprinkler-mod
 ```
 
 # 3D Case
-to do, feel free to contribute, since I'm stull learning Fusio360
+to do but feel free to contribute, since I'm still learning 3D CAD design (Fusion360, OpenCAD, etc)
