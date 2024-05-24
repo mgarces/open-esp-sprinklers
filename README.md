@@ -12,7 +12,7 @@ I've set out to build this, after sucessufully automating my own garden sprinkle
 and also 3 different Wi-Fi devices in your network to manage. With this solution, you only have 1 device in your network. 
 
 # Hardware diagram
-to do
+![esp32-relay](https://github.com/mgarces/open-esp-sprinklers/assets/126121/2a74c420-d607-4861-bc3f-4a23bc8566ce)
 
 Safe GPIO to use:
 `33`, `32` `27`, `26`, `25`, `23`, `22`, `21`, `19`, `17`, `16`, `13` and `4`
