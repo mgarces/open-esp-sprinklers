@@ -8,8 +8,7 @@ For now, this as only been tested using the following
 - ESP32 (NodeMCU ESP32) - [example](https://mauser.pt/catalog/product_info.php?products_id=096-7620)
 - 8 Relay Module - [example](https://mauser.pt/catalog/product_info.php?products_id=096-8203)
 
-I've set out to build this, after sucessufully automating my own garden sprinklers using 3 Shelly 1; they are great, and work perfectly, but it's way messier to install 
-and also 3 different Wi-Fi devices in your network to manage. With this solution, you only have 1 device in your network. 
+I set out to build this after successfully automating my garden sprinklers using three Shelly 1 devices. They work perfectly, but installation is messy, and managing three different Wi-Fi devices on your network can be cumbersome. With this solution, you only need one device on your network.
 
 # Hardware diagram
 ![esp32-relay](https://github.com/mgarces/open-esp-sprinklers/assets/126121/2a74c420-d607-4861-bc3f-4a23bc8566ce)
