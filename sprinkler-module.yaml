@@ -78,12 +78,7 @@ script:
         - delay: ${running_time1}
       
         - logger.log: "Manual cycle almost complete. Turning off last zone."
-        - switch.turn_off: zone_5
-        - switch.turn_off: led1
-        - switch.turn_off: zone_1
-        - switch.turn_off: zone_2
-        - switch.turn_off: zone_3
-        - switch.turn_off: zone_4 
+        - script.execute: run_stop_all
         - logger.log: "Manual watering cycle complete!"
       # ----------------- End of Cycle --------------------
  
@@ -111,6 +106,7 @@ button:
       on_press:
         - logger.log: "Running Zones in sequence manually"
         - script.execute: run_zones_in_sequence
+        
     - platform: template
       name: "Stop all sprinklers"
       icon: "mdi:sprinkler-variant"
@@ -279,12 +275,7 @@ time:
           
           # Turn off the last running zone and log completion
           - logger.log: "Switching off all zones"
-          - switch.turn_off: zone_5
-          - switch.turn_off: led1
-          - switch.turn_off: zone_1
-          - switch.turn_off: zone_2
-          - switch.turn_off: zone_3
-          - switch.turn_off: zone_4 
+          - script.execute: run_stop_all
           - logger.log: "Watering cycle complete."
           # --- End of Cycle ---
   
@@ -295,12 +286,7 @@ time:
         then:
           # Force zone off if any valve is still running by error/mistake
           - logger.log: "Forcebly shutting down all sprinklers for safety"
-          - switch.turn_off: led1
-          - switch.turn_off: zone_1
-          - switch.turn_off: zone_2
-          - switch.turn_off: zone_3
-          - switch.turn_off: zone_4 
-          - switch.turn_off: zone_5
+          - script.execute: run_stop_all
           - logger.log: "All zones should be off"
       # At 00:00 every day. just to be absolutely paranoid.
       - seconds: 0
@@ -309,10 +295,6 @@ time:
         then:
           # Force zone off if any valve is still running by error/mistake
           - logger.log: "Forcebly shutting down all sprinklers for safety"
-          - switch.turn_off: led1
-          - switch.turn_off: zone_1
-          - switch.turn_off: zone_2
-          - switch.turn_off: zone_3
-          - switch.turn_off: zone_4 
-          - switch.turn_off: zone_5
+          - script.execute: run_stop_all
           - logger.log: "All zones should be off"
+
