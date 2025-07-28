@@ -1,11 +1,14 @@
+# ---- EDIT YOUR SETTINGS HERE ----
 substitutions:
   # define for how long you want water to run
-  running_time1: "2sec" # it can be something like 15min
+  running_time1: "15min" # it can be something like 15min
   #running_time2: "15min" # you can have more substituions in order to set different running times
+
   # define at what time you want the sprinklers to start
-  start_time_minutes: "30"
-  start_time_hour: "19"
-  start_time_days_of_week: "*" # '*' means every day. You can use 'MON,WED,FRI' for specific days.
+  schedule_minutes: "30"
+  schedule_hour: "21"
+  schedule_days_of_week: "MON,TUE,WED,THU,FRI,SAT,SUN" # '*' means every day.
+# ---------------------------------
 
 esphome:
   name: sprinkler-module
@@ -40,12 +43,82 @@ wifi:
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
     ssid: "sprinkler-module"
-    password: "1a2b3c4d5e6f"
+    password: !secret ap_passwd
 captive_portal:
 
 
 web_server:
   port: 80
+# Script to run all sprinklers in sequence
+
+script:
+    - id: run_zones_in_sequence
+      mode: single # Ensures the script can only run one instance at a time
+      then:
+        - logger.log: "Manual watering cycle triggered from Home Assistant."
+      # --- Watering Sequence (same as scheduled run) ---
+        - logger.log: "Starting Zone 1"
+        - switch.turn_on: zone_1
+        - delay: ${running_time1}
+
+        - logger.log: "Starting Zone 2"
+        - switch.turn_on: zone_2
+        - delay: ${running_time1}
+
+        - logger.log: "Starting Zone 3"
+        - switch.turn_on: zone_3
+        - delay: ${running_time1}
+
+        - logger.log: "Starting Zone 4"
+        - switch.turn_on: zone_4
+        - delay: ${running_time1}
+
+        - logger.log: "Starting Zone 5"
+        - switch.turn_on: zone_5
+        - delay: ${running_time1}
+      
+        - logger.log: "Manual cycle almost complete. Turning off last zone."
+        - switch.turn_off: zone_5
+        - switch.turn_off: led1
+        - switch.turn_off: zone_1
+        - switch.turn_off: zone_2
+        - switch.turn_off: zone_3
+        - switch.turn_off: zone_4 
+        - logger.log: "Manual watering cycle complete!"
+      # ----------------- End of Cycle --------------------
+ 
+ #script:       
+    - id: run_stop_all
+      mode: single
+      then:
+        - logger.log: "stopping all sprinklers"
+        - switch.turn_off: zone_1
+        - switch.turn_off: zone_2
+        - switch.turn_off: zone_3
+        - switch.turn_off: zone_4
+        - switch.turn_off: zone_5
+        - switch.turn_off: led1
+
+      
+
+# This should apear as an entity in HomeAssistant
+button:
+    - platform: template
+      name: "Run Zones in sequence"
+      icon: "mdi:sprinkler-variant"
+      id: button_run_sequence
+      # Optional variables:
+      on_press:
+        - logger.log: "Running Zones in sequence manually"
+        - script.execute: run_zones_in_sequence
+    - platform: template
+      name: "Stop all sprinklers"
+      icon: "mdi:sprinkler-variant"
+      id: button_stop_all
+      # Optional variables:
+      on_press:
+        - logger.log: "stopping all sprinklers"
+        - script.execute: run_stop_all
 
 switch:
   - platform: restart
@@ -60,21 +133,24 @@ switch:
     pin: 2
     inverted: False
     id: led1
-    restore_mode: RESTORE_DEFAULT_OFF
+    restore_mode: ALWAYS_OFF
     
   - platform: gpio
     name: "Zone 1"
     pin: 25
     inverted: True
     id: zone_1
-    restore_mode: RESTORE_DEFAULT_OFF
+    restore_mode: ALWAYS_OFF
     on_turn_on:
+    - logger.log: "running zone 1"
+    - switch.turn_on: led1
     - switch.turn_off: zone_2
     - switch.turn_off: zone_3 
     - switch.turn_off: zone_4
     - switch.turn_off: zone_5
-    - delay: 1s
-    - switch.turn_on: led1
+    - delay: ${running_time1}
+    - logger.log: "turning off zone 1 after defined running_time"
+    - switch.turn_off: zone_1
     on_turn_off:
     - switch.turn_off: led1
     
@@ -84,14 +160,17 @@ switch:
     pin: 26
     inverted: True
     id: zone_2
-    restore_mode: RESTORE_DEFAULT_OFF
+    restore_mode: ALWAYS_OFF
     on_turn_on:
+    - logger.log: "running zone 2"
+    - switch.turn_on: led1
     - switch.turn_off: zone_1
     - switch.turn_off: zone_3 
     - switch.turn_off: zone_4
     - switch.turn_off: zone_5
-    - delay: 1s
-    - switch.turn_on: led1
+    - delay: ${running_time1}
+    - logger.log: "turning off zone 2 after defined running_time"
+    - switch.turn_off: zone_2
     on_turn_off:
     - switch.turn_off: led1
     
@@ -100,14 +179,17 @@ switch:
     pin: 27
     inverted: True
     id: zone_3
-    restore_mode: RESTORE_DEFAULT_OFF
+    restore_mode: ALWAYS_OFF
     on_turn_on:
+    - logger.log: "running zone 3"
+    - switch.turn_on: led1
     - switch.turn_off: zone_1
     - switch.turn_off: zone_2 
     - switch.turn_off: zone_4
     - switch.turn_off: zone_5
-    - delay: 1s
-    - switch.turn_on: led1
+    - delay: ${running_time1}
+    - logger.log: "turning off zone 3 after defined running_time"
+    - switch.turn_off: zone_3
     on_turn_off:
     - switch.turn_off: led1
     
@@ -116,14 +198,17 @@ switch:
     pin: 14
     inverted: True
     id: zone_4
-    restore_mode: RESTORE_DEFAULT_OFF
+    restore_mode: ALWAYS_OFF
     on_turn_on:
+    - logger.log: "running zone 4"
+    - switch.turn_on: led1
     - switch.turn_off: zone_1
     - switch.turn_off: zone_2 
     - switch.turn_off: zone_3
     - switch.turn_off: zone_5
-    - delay: 1s
-    - switch.turn_on: led1
+    - delay: ${running_time1}
+    - logger.log: "turning off zone 4 after defined running_time"
+    - switch.turn_off: zone_4
     on_turn_off:
     - switch.turn_off: led1
  
@@ -132,14 +217,17 @@ switch:
     pin: 13
     inverted: True
     id: zone_5
-    restore_mode: RESTORE_DEFAULT_OFF
+    restore_mode: ALWAYS_OFF
     on_turn_on:
+    - logger.log: "running zone 5"
+    - switch.turn_on: led1
     - switch.turn_off: zone_1
     - switch.turn_off: zone_2 
     - switch.turn_off: zone_3
     - switch.turn_off: zone_4
-    - delay: 1s
-    - switch.turn_on: led1
+    - delay: ${running_time1}
+    - logger.log: "turning off zone 5 after defined running_time"
+    - switch.turn_off: zone_5
     on_turn_off:
     - switch.turn_off: led1
 
@@ -154,36 +242,41 @@ time:
     on_time:
       # At 21:30 every day.
       - seconds: 0
-        minutes: ${start_time_minutes}
-        hours: ${start_time_hour}
-        days_of_week: ${start_time_days_of_week} # '*' means every day. You can use 'MON,WED,FRI' for specific days.
+        minutes: ${schedule_minutes}
+        hours: ${schedule_hour}
+        days_of_week: ${schedule_days_of_week} # '*' means every day. You can use 'MON,WED,FRI' for specific days.
         then:
           - logger.log: "Starting daily watering cycle."
-          # note that secret 'running_time' is set externally in "secrets"
           - switch.turn_off: led1
+
           # --- Watering Sequence ---
           # Existing logic will automatically turn off any 'on' zone
+          
           # Turn on Zone 1 for 15 minutes
           - logger.log: "Starting Zone 1"
           - switch.turn_on: zone_1
           - delay: ${running_time1}
+          
           # Turn on Zone 2 for 15 minutes
           - logger.log: "Starting Zone 2"
           - switch.turn_on: zone_2
           - delay: ${running_time1}
+          
           # Turn on Zone 3 for 15 minutes
           - logger.log: "Starting Zone 3"
           - switch.turn_on: zone_3
           - delay: ${running_time1}
+          
           # Turn on Zone 4 for 15 minutes
           - logger.log: "Starting Zone 4"
           - switch.turn_on: zone_4
           - delay: ${running_time1}
+          
           # Turn on Zone 5 for 15 minutes
           - logger.log: "Starting Zone 5"
           - switch.turn_on: zone_5
           - delay: ${running_time1}
-          # --- End of Cycle ---
+          
           # Turn off the last running zone and log completion
           - logger.log: "Switching off all zones"
           - switch.turn_off: zone_5
@@ -193,11 +286,26 @@ time:
           - switch.turn_off: zone_3
           - switch.turn_off: zone_4 
           - logger.log: "Watering cycle complete."
+          # --- End of Cycle ---
   
       # At 23:00 every day.
       - seconds: 0
         minutes: 30
         hours: 23
+        then:
+          # Force zone off if any valve is still running by error/mistake
+          - logger.log: "Forcebly shutting down all sprinklers for safety"
+          - switch.turn_off: led1
+          - switch.turn_off: zone_1
+          - switch.turn_off: zone_2
+          - switch.turn_off: zone_3
+          - switch.turn_off: zone_4 
+          - switch.turn_off: zone_5
+          - logger.log: "All zones should be off"
+      # At 00:00 every day. just to be absolutely paranoid.
+      - seconds: 0
+        minutes: 00
+        hours: 00
         then:
           # Force zone off if any valve is still running by error/mistake
           - logger.log: "Forcebly shutting down all sprinklers for safety"
