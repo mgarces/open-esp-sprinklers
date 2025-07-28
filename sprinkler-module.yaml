@@ -3,7 +3,6 @@ substitutions:
   running_time1: "2sec" # it can be something like 15min
   #running_time2: "15min" # you can have more substituions in order to set different running times
   # define at what time you want the sprinklers to start
-  start_time_seconds: "0"
   start_time_minutes: "30"
   start_time_hour: "19"
   start_time_days_of_week: "*" # '*' means every day. You can use 'MON,WED,FRI' for specific days.
@@ -154,7 +153,7 @@ time:
 
     on_time:
       # At 21:30 every day.
-      - seconds: ${start_time_seconds}
+      - seconds: 0
         minutes: ${start_time_minutes}
         hours: ${start_time_hour}
         days_of_week: ${start_time_days_of_week} # '*' means every day. You can use 'MON,WED,FRI' for specific days.
