@@ -1,3 +1,13 @@
+substitutions:
+  # define for how long you want water to run
+  running_time1: "2sec" # it can be something like 15min
+  #running_time2: "15min" # you can have more substituions in order to set different running times
+  # define at what time you want the sprinklers to start
+  start_time_seconds: "0"
+  start_time_minutes: "30"
+  start_time_hour: "19"
+  start_time_days_of_week: "*" # '*' means every day. You can use 'MON,WED,FRI' for specific days.
+
 esphome:
   name: sprinkler-module
   friendly_name: sprinkler-module
@@ -13,27 +23,39 @@ logger:
 # Enable Home Assistant API
 api:
   encryption:
-    key: "<put a key here>"
+    key: !secret api_key_sprinkler_module
 
 ota:
-  password: "<insert pasword here>"
+  platform: esphome
+  password: !secret ota_passwd_sprinkler_module
 
 wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
+  ssid: !secret wifi_ssid_studio
+  password: !secret wifi_password_studio
+  #manual_ip:
+    #static_ip: 192.168.x.x
+    #gateway: 192.168.x.x
+    #subnet: 255.255.255.0
+    #dns1: 1.1.1.1
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
-    ssid: "Sprinkler-Module"
-    password: "<define password here>"
-
+    ssid: "sprinkler-module"
+    password: "1a2b3c4d5e6f"
 captive_portal:
+
 
 web_server:
   port: 80
 
-# this logic only allows one GPIO to run at a time, and turns on the onboard ESP32 LED everytime one of the zones is running.
 switch:
+  - platform: restart
+    name: "Sprinklers Restart"
+    on_turn_on:
+      - switch.turn_on: led1
+    on_turn_off: 
+      - switch.turn_off: led1
+    
   - platform: gpio
     name: "LED 1"
     pin: 2
@@ -122,7 +144,68 @@ switch:
     on_turn_off:
     - switch.turn_off: led1
 
-# We are using a ESP32 module and a 8 Relay Module
-# if you want to add more zones or use less zones, find a suitable GPIO on the ESP32 
-# and connect it to your relay module. 
-# please refer to: https://randomnerdtutorials.com/esp32-pinout-reference-gpios/
+time:
+  - platform: sntp
+    id: "auto_timer_off"
+    timezone: "WET0WEST,M3.5.0/1,M10.5.0" # <-- Timezone To use, please refer to https://github.com/nayarsystems/posix_tz_db/blob/master/zones.csv
+    on_time_sync:
+      then:
+        - logger.log: "Synchronized system clock"
+
+    on_time:
+      # At 21:30 every day.
+      - seconds: ${start_time_seconds}
+        minutes: ${start_time_minutes}
+        hours: ${start_time_hour}
+        days_of_week: ${start_time_days_of_week} # '*' means every day. You can use 'MON,WED,FRI' for specific days.
+        then:
+          - logger.log: "Starting daily watering cycle."
+          # note that secret 'running_time' is set externally in "secrets"
+          - switch.turn_off: led1
+          # --- Watering Sequence ---
+          # Existing logic will automatically turn off any 'on' zone
+          # Turn on Zone 1 for 15 minutes
+          - logger.log: "Starting Zone 1"
+          - switch.turn_on: zone_1
+          - delay: ${running_time1}
+          # Turn on Zone 2 for 15 minutes
+          - logger.log: "Starting Zone 2"
+          - switch.turn_on: zone_2
+          - delay: ${running_time1}
+          # Turn on Zone 3 for 15 minutes
+          - logger.log: "Starting Zone 3"
+          - switch.turn_on: zone_3
+          - delay: ${running_time1}
+          # Turn on Zone 4 for 15 minutes
+          - logger.log: "Starting Zone 4"
+          - switch.turn_on: zone_4
+          - delay: ${running_time1}
+          # Turn on Zone 5 for 15 minutes
+          - logger.log: "Starting Zone 5"
+          - switch.turn_on: zone_5
+          - delay: ${running_time1}
+          # --- End of Cycle ---
+          # Turn off the last running zone and log completion
+          - logger.log: "Switching off all zones"
+          - switch.turn_off: zone_5
+          - switch.turn_off: led1
+          - switch.turn_off: zone_1
+          - switch.turn_off: zone_2
+          - switch.turn_off: zone_3
+          - switch.turn_off: zone_4 
+          - logger.log: "Watering cycle complete."
+  
+      # At 23:00 every day.
+      - seconds: 0
+        minutes: 30
+        hours: 23
+        then:
+          # Force zone off if any valve is still running by error/mistake
+          - logger.log: "Forcebly shutting down all sprinklers for safety"
+          - switch.turn_off: led1
+          - switch.turn_off: zone_1
+          - switch.turn_off: zone_2
+          - switch.turn_off: zone_3
+          - switch.turn_off: zone_4 
+          - switch.turn_off: zone_5
+          - logger.log: "All zones should be off"
